@@ -1,60 +1,61 @@
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useRouter } from "next/router";
-import { API_URL } from './../config/index';
-import { useDispatch,useSelector } from 'react-redux';
+import { API_URL } from "./../config/index";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from "rtk/features/loginSlice";
-import { useEffect } from 'react';
-
+import { useEffect } from "react";
+import axios from "axios";
 
 const MySwal = withReactContent(Swal);
 const Login = () => {
   const router = useRouter();
   const loginUser = useSelector((state) => state.login.login);
-  const dispatch= useDispatch()
+  const dispatch = useDispatch();
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm();
 
- useEffect(()=>{
-    loginUser.username?router.push("./mypage"):null
- },[])
-
+  useEffect(() => {
+    loginUser.username ? router.push("./mypage") : null;
+    return () => {}; // cleanUp Function
+  }, []);
 
   const onSubmit = async (data) => {
-
-    const xhttp = new XMLHttpRequest();
-    xhttp.open("POST", `${API_URL}/login`);
-    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhttp.send(JSON.stringify(data));
-    xhttp.onreadystatechange = function () {
-      console.log(this);
-      if (this.readyState == 4) {
-        const objects = JSON.parse(this.response);        
-        if (this.status == 200&&objects.username) { 
-          MySwal.fire({
-            text: `${objects.username}님 로그인 감사합니다`,
-            icon: "success",
-            confirmButtonText: "OK",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              dispatch(login(objects))        
-               router.push("./");
-            }
-          });
-        } else {
-          MySwal.fire({
-            text: "아이디와 비밀번호를 다시확인해주세요",
-            icon: "error",
-            confirmButtonText: "OK",
-          });
-        }
-      }
+    const url = `/ec2/login`;
+    const options = {
+      method: "POST",
+      headers: { "Content-Type": "application/json;charset=UTF-8" },
+      data: JSON.stringify(data),
+      withCredentials: true,
+      url,
     };
+    try {
+      const res = await axios(options);
+      if (res.status == 200 && res.data.username) {
+        MySwal.fire({
+          text: `${res.data.username}님 로그인 감사합니다`,
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            dispatch(login(res.data));
+            router.push("./");
+          }
+        });
+      } else {
+        MySwal.fire({
+          text: "아이디와 비밀번호를 다시확인해주세요",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
@@ -90,15 +91,6 @@ const Login = () => {
                     required: "Please enter your password.",
                   })}
                 />
-              </div>
-
-              <div className="flex justify-between items-center mb-6">
-                <div className="form-group form-check"></div>
-                <a href="#!"
-                  className="text-blue-600 hover:text-blue-700 focus:text-blue-700 active:text-blue-800 duration-200 transition ease-in-out"
-                >
-                  Forgot password?
-                </a>
               </div>
 
               <button

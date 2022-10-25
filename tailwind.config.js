@@ -7,7 +7,8 @@ module.exports = {
     extend: {
       colors: {
         "footer-color": "#242424",
-        "number-color": "#00A3FF", 
+        "number-color": "#00A3FF",
+        "logo-color": "#00A3FF",
         gray: {
           100: "#FBFBFB",
           200: "#EAEAEA",
@@ -42,8 +43,8 @@ module.exports = {
           900: "#234E52",
         },
         mycolor: {
-         myColor: "#242424",
-        }
+          myColor: "#242424",
+        },
       },
       boxShadow: {
         xs: "0 0 0 1px rgba(0, 0, 0, 0.16)",
@@ -67,6 +68,7 @@ module.exports = {
         inter: ["Inter", "sans-serif"],
       },
       fontSize: {
+        xxs: "10px",
         xs: "0.75rem",
         sm: "0.875rem",
         base: "1rem",
@@ -129,7 +131,26 @@ module.exports = {
       zIndex: {
         "-1": "-1",
       },
+      screens: {
+        c1170: "1170px",
+        c800: "800px",
+      },
     },
+    keyframes: {
+      'fade-in-down': {
+          '0%': {
+              opacity: '0',
+              transform: 'translateY(-10px)'
+          },
+          '100%': {
+              opacity: '1',
+              transform: 'translateY(0)'
+          },
+      }
+  },
+  animation: {
+      'fade-in-down': 'fade-in-down 0.5s ease-out'
+  }
   },
   variants: {
     backgroundColor: ["responsive", "hover", "focus", "group-hover"],
