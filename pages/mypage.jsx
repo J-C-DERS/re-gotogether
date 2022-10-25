@@ -8,13 +8,14 @@ import axios from "axios";
 const Mypage = () => {
   const wish = useSelector((state) => state.wish.wish);
   const login = useSelector((state) => state.login.login);
+  const recent = useSelector((state) => state.recent.recent);
   const [reserve, setReserve] = useState();
   const router = useRouter();
   const CancelToken = axios.CancelToken;
   const source = CancelToken.source();
-  useEffect(() => {  
-    login.username ===undefined ? router.push("./") : null;    
-  
+  useEffect(() => {
+    login.username === undefined ? router.push("./") : null;
+
     (async () => {
       try {
         const res = await axios.get(`/ec2/reservations/user`, {
@@ -33,7 +34,7 @@ const Mypage = () => {
       const res = await axios.patch(`/ec2/reservations/${path}/state`, {
         cancelToken: source.token,
         headers: { "Content-Type": "application/json;charset=UTF-8" },
-        data:{"paymentState":3}
+        data: { paymentState: 3 },
       });
       setReserve(res.data);
     } catch (e) {
@@ -87,7 +88,6 @@ const Mypage = () => {
                 <tbody className="border-b">
                   {reserve ? (
                     reserve.reservations.map((item) => {
-            
                       return (
                         <tr key={item.reservationId}>
                           <th className="bg-blueGray-50 text-neutral-400 align-middle border border-solid border-blueGray-100 py-3 text-sm uppercase border-l-0 border-r-0 whitespace-nowrap font-normal text-left">
@@ -103,7 +103,11 @@ const Mypage = () => {
                             {item.paymentState}
                           </th>
                           <th className="pr-2 text-neutral-400 align-middle border border-solid border-blueGray-100 text-sm uppercase border-l-0 border-r-0 whitespace-nowrap font-normal">
-                            <button onClick={() => onCancel(item.reservationId)}>취소</button>
+                            <button
+                              onClick={() => onCancel(item.reservationId)}
+                            >
+                              취소
+                            </button>
                           </th>
                         </tr>
                       );
@@ -111,7 +115,7 @@ const Mypage = () => {
                   ) : (
                     <tr className="text-center">
                       <td className="border-t-0 text-neutral-400 py-32 pl-8 align-middle border-l-0 border-r-0 text-sm">
-                         예약상품이 비어있습니다
+                        예약상품이 비어있습니다
                       </td>
                     </tr>
                   )}
@@ -178,6 +182,61 @@ const Mypage = () => {
                               <button className="flex justify-center bg-blue-600 p-3 w-14 rounded-lg text-white hover:bg-blue-400:">
                                 삭제
                               </button>
+                            </td>
+                          );
+                        })
+                    )}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="py-1 bg-blueGray-50">
+        <div className="w-full xl:w-9/12 mb-12 xl:mb-0 px-4 mt-12 mx-auto">
+          <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 rounded">
+            <div className="rounded-t mb-0 py-6 border-0">
+              <div className="flex flex-wrap items-center">
+                <div className="relative w-full max-w-full flex-grow flex-1">
+                  <h3 className="font-normal text-xl tracking-wider text-Gray-500">
+                    최근 본 상품
+                  </h3>
+                </div>
+                <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right mt-0"></div>
+              </div>
+            </div>
+
+            <div className="block w-full overflow-x-auto">
+              <table className="items-center bg-transparent w-full border-collapse">
+                <tbody>
+                  <tr className="text-center">
+                    {recent.length <= 1 ? (
+                      <td className="border-t-0 text-neutral-400 pt-12 align-middle border-l-0 border-r-0 text-sm whitespace-nowrap">
+                        최근 본 상품이 없습니다 🫥
+                      </td>
+                    ) : (
+                      recent
+                        .filter((_, i) => i !== 0)
+                        .map((item) => {
+                          const { title, img, id } = item;
+                          return (
+                            <td
+                              key={title}
+                              className="ml-3 border-t-0 text-neutral-400 pt-12 align-middle border-l-0 border-r-0 text-sm whitespace-nowrap cursor-pointer hover:opacity-75 transition-all"
+                            >
+                              <Link href={`view/${id}`}>
+                                <a>
+                                  <Image
+                                    className="rounded-lg object-cover"
+                                    src={img}
+                                    alt={title}
+                                    width={500}
+                                    height={300}
+                                  />
+                                </a>
+                              </Link>
+                              <h4 className="">{title}</h4>
                             </td>
                           );
                         })

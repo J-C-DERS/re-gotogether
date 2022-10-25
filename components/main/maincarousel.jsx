@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function Maincarousel() {
   const settings = {
-    arrows: true,
+    arrows: false,
     dots: true,
     infinite: true,
     speed: 300,

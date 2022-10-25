@@ -7,7 +7,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSelector, useDispatch } from "react-redux";
 import { addwish, delwish } from "rtk/features/wishSlice";
-import { useMemo } from "react";
+import { addRecent } from "rtk/features/recentSlice";
+import { useMemo, useEffect } from "react";
 import Groupnav from "@/components/common/groupnav";
 
 export function getStaticPaths() {
@@ -56,6 +57,30 @@ const Keyword = ({ searchData }) => {
       </main>
     );
   }
+
+  useEffect(() => {
+    if (localStorage.getItem("recent")) {
+      let compareRecent = localStorage.getItem("recent");
+      compareRecent = JSON.parse(compareRecent);
+
+      compareRecent.map((recentItem) => {
+        searchData.products.map((item) => {
+          const { title, productId } = item;
+          const image1 = item.images[0];
+          if (productId === recentItem) {
+            dispatch(
+              addRecent({
+                id: productId,
+                title: title,
+                img: image1,
+              }),
+            );
+          }
+        });
+      });
+    }
+  }, []);
+
   return (
     <>
       <Head>
@@ -65,18 +90,19 @@ const Keyword = ({ searchData }) => {
         <div className="flex flex-wrap justify-between">
           {searchData &&
             searchData.products.map((item) => {
-         
               const { title, productId } = item;
-              const  price= item.price !== null ?
-               `${item.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원`
-              : "가격문의";
+              const price =
+                item.price !== null
+                  ? `${item.price
+                      .toString()
+                      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원`
+                  : "가격문의";
               const image1 = item.images[0];
               return (
                 <div
                   className="w-1/3 mb-10 border border-gray-200 rounded-lg shadow-md "
                   key={title}
                 >
-            
                   <Link href={`/travel/${productId}`}>
                     <a alt={title}>
                       <Image
@@ -94,43 +120,42 @@ const Keyword = ({ searchData }) => {
                     </p>
                   </div>
                   <div className="pl-5">
-                  <h4 className="text-sm font-bold text-gray-700 font-sm">
-                    {price}
-                  </h4>
-                  <div className="flex justify-end p-5">
-                  <button
-                    className="flex items-center justify-center flex-none border rounded-md w-9 h-9 text-slate-300 border-slate-200"
-                    type="button"
-                    aria-label="Like"
-                    onClick={
-                      wishItem.includes(productId)
-                        ? () => dispatch(delwish(productId))
-                        : () =>
-                            dispatch(
-                              addwish({
-                                id: productId,
-                                title: title,
-                                img: image1,
-                              }),
-                            )
-                    }
-                  >
-                    <svg
-                      width="20"
-                      height="20"
-                      fill={wishItem.includes(productId) ? "red" : "blue"}
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        clipule="evenodd"
-                        d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                      />
-                    </svg>
-                  </button>
+                    <h4 className="text-sm font-bold text-gray-700 font-sm">
+                      {price}
+                    </h4>
+                    <div className="flex justify-end p-5">
+                      <button
+                        className="flex items-center justify-center flex-none border rounded-md w-9 h-9 text-slate-300 border-slate-200"
+                        type="button"
+                        aria-label="Like"
+                        onClick={
+                          wishItem.includes(productId)
+                            ? () => dispatch(delwish(productId))
+                            : () =>
+                                dispatch(
+                                  addwish({
+                                    id: productId,
+                                    title: title,
+                                    img: image1,
+                                  }),
+                                )
+                        }
+                      >
+                        <svg
+                          width="20"
+                          height="20"
+                          fill={wishItem.includes(productId) ? "red" : "blue"}
+                          aria-hidden="true"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            clipule="evenodd"
+                            d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                 </div>
-                  
                 </div>
               );
             })}
